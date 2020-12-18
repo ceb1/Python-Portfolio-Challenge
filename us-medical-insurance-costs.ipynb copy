@@ -1,0 +1,584 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# U.S. Medical Insurance Costs"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Thoughts when looking over the dataset\n",
+    "\n",
+    "Column titles:\n",
+    "- age - int\n",
+    "- sex - female/male\n",
+    "- bmi - float\n",
+    "- children - int\n",
+    "- smoker - yes/no\n",
+    "- region - northeast etc.\n",
+    "- charges - float\n",
+    "\n",
+    "**No missing data**\n",
+    "\n",
+    "Items of particular interest: \n",
+    "- How does the number of children affect insurance cost? Is there a female/male split within this? "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Scoping the project\n",
+    "\n",
+    "**Overall goal**\n",
+    "- Describe the relationship between number of children and insurance cost. Assess whether there are differences in the relationship for males and females. \n",
+    "\n",
+    "**Data** \n",
+    "- Pull the data from the CSV file into a dictionary with each row as an entry and the column headers as keys.\n",
+    "\n",
+    "**Analyse**  \n",
+    "- Group data based on number of children and find the min, max and average insurance cost for each group.\n",
+    "- Group data based on number of children and female/male and find the min, max and average insurance cost for each group.\n",
+    "- Find the group size of each group.\n",
+    "- Compare averages for patients with no children and patients with at least one child.\n",
+    "\n",
+    "**Evaluate**\n",
+    "- Ensure the group sizes are statistically significant and then compare the averages of the diffent groups and draw conclusions. \n",
+    "- Further analyse data based on evaluations.\n",
+    "\n",
+    "**Output**\n",
+    "- Write a paragraph summarising findings. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Importing data from the CSV file.\n",
+    "\n",
+    "import csv\n",
+    "\n",
+    "# Stores the data in a dictionary with the following format - id_number: patient infofmation dictionary.\n",
+    "with open('insurance.csv', newline='') as csvfile:\n",
+    "    reader = csv.DictReader(csvfile)\n",
+    "    data_dict = {}\n",
+    "    i = 0\n",
+    "    for row in reader:\n",
+    "        data_dict[i] = row\n",
+    "        i += 1\n",
+    "#print(data_dict)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Function to convert a string to a float.\n",
+    "def string_to_float(dict, key):\n",
+    "    for data in dict.values():\n",
+    "        string = data[key]\n",
+    "        converted = float(string)\n",
+    "        data[key] = converted\n",
+    "        \n",
+    "\n",
+    "# Calling the function on bmi and charges\n",
+    "string_to_float(data_dict, 'charges')\n",
+    "string_to_float(data_dict, 'bmi')\n",
+    "\n",
+    "# Function to convert a string to an int.\n",
+    "def string_to_int(dict, key):\n",
+    "    for data in dict.values():\n",
+    "        string = data[key]\n",
+    "        converted = int(string)\n",
+    "        data[key] = converted\n",
+    "        \n",
+    "\n",
+    "# Calling the function on age and number of children\n",
+    "string_to_int(data_dict, 'age')\n",
+    "string_to_int(data_dict, 'children')\n",
+    "\n",
+    "#print(data_dict)\n",
+    "        \n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of patients: 1338\n",
+      "Average charges: 13270.42\n",
+      "Number of patients: 1338\n",
+      "Average children: 1.09\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Function to find the average.\n",
+    "def average(dict, key):\n",
+    "    print('Number of patients: ' + str(len(dict)))\n",
+    "    total = 0\n",
+    "    for data in dict.values():\n",
+    "        cost = data[key]\n",
+    "        total += cost\n",
+    "    average = round(total / len(dict), 2)\n",
+    "    print('Average ' + key +': ' + str(average))\n",
+    "        \n",
+    "# Calling average function on charges\n",
+    "average(data_dict, 'charges')\n",
+    "average(data_dict, 'children')\n",
+    "  "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Maximum children: 5\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Function to find the maximum value\n",
+    "def find_max(dict, key):\n",
+    "    max = 0\n",
+    "    for data in dict.values():\n",
+    "        value = data[key]\n",
+    "        if value > max:\n",
+    "            max = round(value, 2)\n",
+    "    print('Maximum ' + key + ': ' + str(max))\n",
+    "\n",
+    "# Calling max function on children\n",
+    "find_max(data_dict, 'children')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Minimum children: 0\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Function to find the minimum value\n",
+    "def find_min(dict, key):\n",
+    "    min = float('inf')\n",
+    "    for data in dict.values():\n",
+    "        value = data[key]\n",
+    "        if value < min:\n",
+    "            min = round(value, 2)\n",
+    "    print('Minimum ' + key + ': ' + str(min))\n",
+    "\n",
+    "# Calling min function on children as test\n",
+    "find_min(data_dict, 'children')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Minimum charges: 1121.87\n",
+      "Maximum charges: 63770.43\n",
+      "Number of patients: 574\n",
+      "Average charges: 12365.98\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Function to create a smaller dictionary based on specific criteria e.g. patient having no children\n",
+    "def create_dict(dict, key, criteria):\n",
+    "    new_dict = {}\n",
+    "    i = 0\n",
+    "    for data in dict.values():\n",
+    "        value = data[key]\n",
+    "        if value == criteria:\n",
+    "            new_dict[i] = data\n",
+    "            i += 1\n",
+    "    return new_dict\n",
+    "\n",
+    "# Calling create_dict to group patients with 0 children\n",
+    "zero_children = create_dict(data_dict, 'children', 0)\n",
+    "\n",
+    "# Function to find min, max and average insurance cost from a dictionary\n",
+    "def min_max_avg(dict, key):\n",
+    "    find_min(dict, key)\n",
+    "    find_max(dict, key)\n",
+    "    average(dict, key)\n",
+    "\n",
+    "# Calling min_max_avg on zero_children dictionary\n",
+    "min_max_avg(zero_children, 'charges')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# A function to iterate through a list of criteria, creating a dictionary for each criteria that can then be used\n",
+    "# to find the min, max and average insurance cost.\n",
+    "def iterate(dict, key, criteria_list, group_name):\n",
+    "    list_dicts = []\n",
+    "    for criteria in criteria_list:\n",
+    "        list_dicts.append(create_dict(dict, key, criteria))\n",
+    "    i = 0\n",
+    "    for group in list_dicts:\n",
+    "        if i != 1:\n",
+    "            print('\\n For ' + group_name + ' patients with ' + str(i) + ' children:')\n",
+    "        else:\n",
+    "            print('\\n For ' + group_name + ' patients with ' + str(i) + ' child:')\n",
+    "        i += 1\n",
+    "        min_max_avg(group, 'charges')\n",
+    "        \n",
+    "num_children = [0, 1, 2, 3, 4, 5]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " For  patients with 0 children:\n",
+      "Minimum charges: 1121.87\n",
+      "Maximum charges: 63770.43\n",
+      "Number of patients: 574\n",
+      "Average charges: 12365.98\n",
+      "\n",
+      " For  patients with 1 child:\n",
+      "Minimum charges: 1711.03\n",
+      "Maximum charges: 58571.07\n",
+      "Number of patients: 324\n",
+      "Average charges: 12731.17\n",
+      "\n",
+      " For  patients with 2 children:\n",
+      "Minimum charges: 2304.0\n",
+      "Maximum charges: 49577.66\n",
+      "Number of patients: 240\n",
+      "Average charges: 15073.56\n",
+      "\n",
+      " For  patients with 3 children:\n",
+      "Minimum charges: 3443.06\n",
+      "Maximum charges: 60021.4\n",
+      "Number of patients: 157\n",
+      "Average charges: 15355.32\n",
+      "\n",
+      " For  patients with 4 children:\n",
+      "Minimum charges: 4504.66\n",
+      "Maximum charges: 40182.25\n",
+      "Number of patients: 25\n",
+      "Average charges: 13850.66\n",
+      "\n",
+      " For  patients with 5 children:\n",
+      "Minimum charges: 4687.8\n",
+      "Maximum charges: 19023.26\n",
+      "Number of patients: 18\n",
+      "Average charges: 8786.04\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Calling iterate for all patients.\n",
+    "iterate(data_dict, 'children', num_children, '' )"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "For a male patient:\n",
+      "Minimum charges: 1121.87\n",
+      "Maximum charges: 62592.87\n",
+      "Number of patients: 676\n",
+      "Average charges: 13956.75\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Creating a dictionary of male patients and finding the min, max and average insurance costs.\n",
+    "print('For a male patient:')\n",
+    "male = create_dict(data_dict, 'sex', 'male')\n",
+    "min_max_avg(male, 'charges')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " For male patients with 0 children:\n",
+      "Minimum charges: 1121.87\n",
+      "Maximum charges: 62592.87\n",
+      "Number of patients: 285\n",
+      "Average charges: 12832.7\n",
+      "\n",
+      " For male patients with 1 child:\n",
+      "Minimum charges: 1711.03\n",
+      "Maximum charges: 51194.56\n",
+      "Number of patients: 166\n",
+      "Average charges: 13273.52\n",
+      "\n",
+      " For male patients with 2 children:\n",
+      "Minimum charges: 2304.0\n",
+      "Maximum charges: 49577.66\n",
+      "Number of patients: 121\n",
+      "Average charges: 16187.1\n",
+      "\n",
+      " For male patients with 3 children:\n",
+      "Minimum charges: 3443.06\n",
+      "Maximum charges: 60021.4\n",
+      "Number of patients: 80\n",
+      "Average charges: 16789.17\n",
+      "\n",
+      " For male patients with 4 children:\n",
+      "Minimum charges: 4504.66\n",
+      "Maximum charges: 40182.25\n",
+      "Number of patients: 14\n",
+      "Average charges: 13782.28\n",
+      "\n",
+      " For male patients with 5 children:\n",
+      "Minimum charges: 4915.06\n",
+      "Maximum charges: 14478.33\n",
+      "Number of patients: 10\n",
+      "Average charges: 7931.66\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Calling the iterate function on the male dictionary\n",
+    "iterate(male, 'children', num_children, 'male')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "For a female patient:\n",
+      "Minimum charges: 1607.51\n",
+      "Maximum charges: 63770.43\n",
+      "Number of patients: 662\n",
+      "Average charges: 12569.58\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Creating a dictionary of female patients and finding the min, max and average insurance costs.\n",
+    "print('For a female patient:')\n",
+    "female = create_dict(data_dict, 'sex', 'female')\n",
+    "min_max_avg(female, 'charges')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " For female patients with 0 children:\n",
+      "Minimum charges: 1607.51\n",
+      "Maximum charges: 63770.43\n",
+      "Number of patients: 289\n",
+      "Average charges: 11905.71\n",
+      "\n",
+      " For female patients with 1 child:\n",
+      "Minimum charges: 2201.1\n",
+      "Maximum charges: 58571.07\n",
+      "Number of patients: 158\n",
+      "Average charges: 12161.36\n",
+      "\n",
+      " For female patients with 2 children:\n",
+      "Minimum charges: 2801.26\n",
+      "Maximum charges: 47305.31\n",
+      "Number of patients: 119\n",
+      "Average charges: 13941.32\n",
+      "\n",
+      " For female patients with 3 children:\n",
+      "Minimum charges: 4234.93\n",
+      "Maximum charges: 46661.44\n",
+      "Number of patients: 77\n",
+      "Average charges: 13865.61\n",
+      "\n",
+      " For female patients with 4 children:\n",
+      "Minimum charges: 4561.19\n",
+      "Maximum charges: 36580.28\n",
+      "Number of patients: 11\n",
+      "Average charges: 13937.67\n",
+      "\n",
+      " For female patients with 5 children:\n",
+      "Minimum charges: 4687.8\n",
+      "Maximum charges: 19023.26\n",
+      "Number of patients: 8\n",
+      "Average charges: 9854.01\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Calling the iterate function on the female dictionary\n",
+    "iterate(female, 'children', num_children, 'female')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Minimum charges: 1711.03\n",
+      "Maximum charges: 60021.4\n",
+      "Number of patients: 764\n",
+      "Average charges: 13949.94\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Creating a dictionary of patients with more than one child and calling min_max_avg function on this.\n",
+    "more_than_one_child = {}\n",
+    "i = 0\n",
+    "for data in data_dict.values():\n",
+    "    value = data['children']\n",
+    "    if value > 0:\n",
+    "        more_than_one_child[i] = data\n",
+    "    i += 1\n",
+    "\n",
+    "min_max_avg(more_than_one_child, 'charges')\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Minimum charges: 1711.03\n",
+      "Maximum charges: 60021.4\n",
+      "Number of patients: 391\n",
+      "Average charges: 14776.07\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Creating a dictionary of male patients with more than one child and calling min_max_avg function on this.\n",
+    "male_more_than_one_child = create_dict(more_than_one_child, 'sex', 'male')\n",
+    "min_max_avg(male_more_than_one_child, 'charges')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Minimum charges: 2201.1\n",
+      "Maximum charges: 58571.07\n",
+      "Number of patients: 373\n",
+      "Average charges: 13083.94\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Creating a dictionary of female patients with more than one child and calling min_max_avg function on this.\n",
+    "female_more_than_one_child = create_dict(more_than_one_child, 'sex', 'female')\n",
+    "min_max_avg(female_more_than_one_child, 'charges')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Evaluation\n",
+    "\n",
+    "The data indicates that having a child increases insurances costs. The average cost of insurance for a patient with no children is \\\\$12,366 compared to an average cost of \\\\$13,950 for a patient with at least one child. There is also a potential positive trend in insurance costs increasing as number of children increases, with the data supporting this up to three children. The data for patients with four and five children does not support this - however the sample size is small for these groups (25 and 18), which could mean the decrease in insurance cost is due to other factors. A firm conclusion cannot be drawn with the current data. \n",
+    "\n",
+    "The data also shows that male patients on average have a higher insurance cost than female patients - \\\\$13,955 compared to \\\\$12,569. This patern is mirrored through most of the data with the male group always having higher costs than the equivalent female group except for patients with four or five children. Again the sample size is very small for these groups, which means a firm conclusion cannot be drawn.  "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
